@@ -1,4 +1,5 @@
 ﻿using CsSolutionManger.Console.DotNetCli;
+using CsSolutionManger.Console.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

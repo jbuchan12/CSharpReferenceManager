@@ -1,17 +1,15 @@
-﻿namespace CsSolutionManger.Console.DotNetCli;
+﻿using CsSolutionManger.Console.Interfaces;
+
+namespace CsSolutionManger.Console.DotNetCli;
 
 public class SolutionCliApi : CliApi
 {
-    private readonly ISolution _solution;
-
     public SolutionCliApi(ISolution solution, string parentCommand)
     {
-        _solution = solution;
         Command = $"{parentCommand} sln";
 
-        Projects = new ProjectsCliApi(solution, Command);
+        Projects = new ProjectsCliApi<ISolution>(solution, Command);
     }
 
-    public ProjectsCliApi Projects { get; }
-
+    public ProjectsCliApi<ISolution> Projects { get; }
 }

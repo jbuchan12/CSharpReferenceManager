@@ -1,4 +1,6 @@
-﻿namespace CsSolutionManger.Console.DotNetCli
+﻿using CsSolutionManger.Console.Interfaces;
+
+namespace CsSolutionManger.Console.DotNetCli
 {
     public class DotNetCli : CliApi
     {

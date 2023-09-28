@@ -1,28 +1,39 @@
-﻿using CsSolutionManger.Console.DotNetCli;
+﻿using CsSolutionManger.Console.Interfaces;
 
 namespace CsSolutionManger.Console;
 
-public class Project
+public class Project : IProject 
 {
-    private readonly ProjectsCliApi _projectsCliApi;
+    private readonly IProjectsCliApi _projectsCliApi;
 
-    public Project(string name, string directory, ProjectsCliApi projectsCliApi)
+    public Project(string name, string directory, IProjectsCliApi projectsCliApi)
     {
+        Id = Guid.NewGuid();
         _projectsCliApi = projectsCliApi;
         Directory = System.IO.Directory.GetParent($"{directory}/{name}")?.FullName ?? string.Empty;
         Name = Path.GetFileName(name);
     }
 
+    public Guid Id { get; set; }
     public string Name { get; }
     public string Directory { get; }
+
+    public List<Project> Projects
+        => _projectsCliApi.Projects(this).Get();
+
+    public void AddProject(Project project)
+        => _projectsCliApi.Projects(this).Add(project);
+
+    public void RemoveProject(Project project)
+        => _projectsCliApi.Projects(this).Remove(project);
 
     public List<NugetPackage> Packages 
         => _projectsCliApi.Packages(this).Get();
 
-    public void AddProject(NugetPackage project)
+    public void AddPackage(NugetPackage project)
         => _projectsCliApi.Packages(this).Add(project);
 
-    public void RemoveProject(NugetPackage project)
+    public void RemovePackage(NugetPackage project)
         => _projectsCliApi.Packages(this).Remove(project);
 
 }
@@ -34,5 +45,5 @@ public class NugetPackage
         Name = name;
     }
 
-    public readonly string Name;
+    public string Name { get; set; }
 }
