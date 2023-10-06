@@ -1,4 +1,6 @@
-﻿namespace CsSolutionManger.Console.DotNetCli;
+﻿using CsSolutionManger.Console.Models;
+
+namespace CsSolutionManger.Console.DotNetCli;
 
 public class PackagesCliApi : CliApi
 {
@@ -9,26 +11,31 @@ public class PackagesCliApi : CliApi
         _project = project;
     }
 
-    public List<NugetPackage> Get()
+    public async Task<List<NugetPackage>> Get()
     {
         Command = $"list {_project.Name} package";
-        string output = RunDotnetCommand(_project.Directory);
+        string output = await RunDotnetCommand(_project.Directory);
 
-        return output.Split(">")
-            .Skip(1)
-            .Select(l => new string(l
-                .Where(char.IsLetter).ToArray()))
-            .Select(x => new NugetPackage(x))
+        List<string> packageStrings = output.Split('>')
+            .Skip(1) //First item is just general information
+            .ToList();
+
+        return packageStrings
+            .Select(packageString => packageString.Split(' ')
+                .Where(x => x.Length > 0))
+            .Select(values => new NugetPackage(values.ElementAt(0), values.ElementAt(1)))
             .ToList();
     }
 
-    public void Add(NugetPackage project)
+    public Task Add(NugetPackage package)
     {
-        throw new NotImplementedException();
+        Command = $"remove {_project.Name} package {package.Name}";
+        return RunDotnetCommand(_project.Directory);
     }
 
-    public void Remove(NugetPackage project)
+    public Task Remove(NugetPackage package)
     {
-        throw new NotImplementedException();
+        Command = $"remove {_project.Name} package {package.Name}";
+        return RunDotnetCommand(_project.Directory);
     }
 }

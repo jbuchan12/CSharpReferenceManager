@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using CsSolutionManger.Console.Interfaces;
+using CsSolutionManger.Console.Models;
 
 namespace CsSolutionManger.Console.DotNetCli;
 
@@ -19,25 +20,25 @@ public class ProjectsCliApi<TVisualStudioObject> : CliApi, IProjectsCliApi
 
     public ProjectsCliApi<IProject> Projects(Project project) => new (project, Command);
 
-    public List<Project> Get()
+    public async Task<List<Project>> Get()
     {
         Command = (typeof(TVisualStudioObject) == typeof(ISolution))
             ? $"{_parentCommand} {_vsObject.Name} list"
             : $"list {_vsObject.Name} reference";
 
-        string output = RunDotnetCommand(_vsObject.Directory);
+        string output = await RunDotnetCommand(_vsObject.Directory);
         return ParseCommandOutput(output, _vsObject.Directory, this);
     }
 
-    public void Add(Project project)
+    public async Task Add(Project project, string solutionDirectory)
     {
-        Command = $"sln add {project.Name}";
-        string output = RunDotnetCommand(project.Directory);
+        Command = $"sln add \"{project.Directory}\\{project.Name}\"";
+        _ = await RunDotnetCommand(solutionDirectory);
     }
 
-    public void Remove(Project project)
+    public async Task Remove(Project project)
     {
         Command = $"sln remove {project.Name}";
-        string output = RunDotnetCommand(project.Directory);
+        _ = await RunDotnetCommand(project.Directory);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using CsSolutionManger.Console.Interfaces;
+using CsSolutionManger.Console.Models;
 
 namespace CsSolutionManger.Console.DotNetCli;
 
@@ -7,7 +8,7 @@ public abstract class CliApi
 {
     public string Command { get; protected set; } = string.Empty;
 
-    protected string RunDotnetCommand(string workingDirectory)
+    protected async Task<string> RunDotnetCommand(string workingDirectory)
     {
         Process? process = Process.Start(new ProcessStartInfo($"dotnet")
         {
@@ -18,16 +19,16 @@ public abstract class CliApi
             RedirectStandardInput = true,
             RedirectStandardOutput = true,
             WorkingDirectory = workingDirectory,
-        });
+        }) ?? throw new Exception("process is null");
 
-        process?.WaitForExit();
+        await process.WaitForExitAsync();
 
-        string? error = process?.StandardError.ReadToEnd();
+        string error = await process.StandardError.ReadToEndAsync();
 
         if (!string.IsNullOrEmpty(error))
             throw new Exception(error);
 
-        return process?.StandardOutput.ReadToEnd() ?? string.Empty;
+        return await process.StandardOutput.ReadToEndAsync();
     }
 
     protected List<Project> ParseCommandOutput<TVisualStudioObject>(string output, string directory, ProjectsCliApi<TVisualStudioObject> cliApi) 

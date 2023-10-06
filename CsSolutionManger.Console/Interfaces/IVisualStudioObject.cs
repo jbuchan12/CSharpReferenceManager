@@ -1,10 +1,11 @@
-﻿namespace CsSolutionManger.Console.Interfaces;
+﻿using CsSolutionManger.Console.Models;
+
+namespace CsSolutionManger.Console.Interfaces;
 
 public interface IVisualStudioObject
 {
     Guid Id { get; set; }
     string Name { get; }
     string Directory { get; }
-    void AddProject(Project project);
-    void RemoveProject(Project project);
+    Task RemoveProject(Project project);
 }

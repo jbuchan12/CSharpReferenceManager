@@ -1,7 +1,7 @@
 ﻿using CsSolutionManger.Console.DotNetCli;
 using CsSolutionManger.Console.Interfaces;
 
-namespace CsSolutionManger.Console;
+namespace CsSolutionManger.Console.Models;
 
 public class Solution : ISolution
 {
@@ -9,7 +9,7 @@ public class Solution : ISolution
 
     public Solution(string solutionFullPath, DotNetCli.DotNetCli dotNetCli)
     {
-        if(! File.Exists(solutionFullPath))
+        if (!File.Exists(solutionFullPath))
             throw new InvalidOperationException("Solution file not found at path");
 
         FullPath = solutionFullPath;
@@ -19,16 +19,16 @@ public class Solution : ISolution
     }
 
     public Guid Id { get; set; }
-    public string FullPath { get;}
+    public string FullPath { get; }
     public string Directory => System.IO.Directory.GetParent(FullPath)?.FullName ?? string.Empty;
     public string Name => Path.GetFileName(FullPath);
 
-    public List<Project> Projects
+    public Task<List<Project>> Projects
         => _solutionCliApi.Projects.Get();
 
-    public void AddProject(Project project) 
-        => _solutionCliApi.Projects.Add(project);
+    public Task AddProject(Project project)
+        => _solutionCliApi.Projects.Add(project, Directory);
 
-    public void RemoveProject(Project project) 
+    public Task RemoveProject(Project project)
         => _solutionCliApi.Projects.Remove(project);
 }

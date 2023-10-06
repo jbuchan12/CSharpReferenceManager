@@ -1,58 +1,102 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading.Tasks;
+using System.Windows;
 using CsSolutionManger.Console;
 using CsSolutionManger.Console.DotNetCli;
 using CsSolutionManger.Console.Interfaces;
+using CsSolutionManger.Console.Models;
 
 namespace CsSolutionManager.UI.ViewModels
 {
     public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
     {
         private readonly IOpenFileDialog _openFileDialog;
+        private readonly IReferenceManagementService _referenceManagementService;
+        private readonly DotNetCli _dotNetCli;
         private ISolution? _solution;
 
-        public MainWindowViewModel(IOpenFileDialog openFileDialog)
+        private static string CodeRepositoryFolder => $@"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}\source\repos\";
+
+        public MainWindowViewModel(IOpenFileDialog openFileDialog, IReferenceManagementService referenceManagementService)
         {
             _openFileDialog = openFileDialog;
+            _referenceManagementService = referenceManagementService;
+            _dotNetCli = new DotNetCli();
         }
 
         public string SolutionPath { get; set; } = string.Empty;
         public List<Project> Projects { get; set; } = new ();
         public List<NugetPackage> NugetPackages { get; set; } = new();
         public List<Project> ProjectReferences { get; set; } = new();
-
+        public Project? SelectedProject { get; set; }
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public void BrowseForSolution()
+        public async Task BrowseForSolution()
         {
-            _openFileDialog.Filter = "Solution Files (*.sln)|*.sln";
-            _openFileDialog.InitialDirectory = $@"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}\source\repos\";
-            _openFileDialog.Title = "Please select a solution file.";
-
-            if (!(_openFileDialog.ShowDialog() ?? false)) 
+            if (!(_openFileDialog.ShowDialog(
+                    OpenFileDialogWrapper.SolutionFileFilter,
+                    CodeRepositoryFolder,
+                    "Please select a solution file.") ?? false)) 
                 return;
 
-            InitialiseSolutionData();
+            await InitialiseSolutionData();
         }
 
-        public void ProjectSelectionChanged(Project? selectedProject)
+        public async Task ProjectSelectionChanged(Project? selectedProject)
         {
             if(selectedProject == null) 
                 return;
 
-            NugetPackages = selectedProject.Packages;
-            ProjectReferences = selectedProject.Projects;
+            SelectedProject = selectedProject;
+            NugetPackages = await selectedProject.Packages;
+            ProjectReferences = await selectedProject.Projects;
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NugetPackages)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProjectReferences)));
         }
 
-        private void InitialiseSolutionData()
+        public async Task MoveNugetPackageToProject(NugetPackage? selectedItem)
+        {
+            if(selectedItem is null || SelectedProject is null || _solution is null)
+                return;
+
+            if (selectedItem.RegisteredProject is null)
+                RegisterProjectFileWithNugetPackage(selectedItem);
+
+            if(selectedItem.RegisteredProject is null)
+                return;
+
+            await SelectedProject.RemovePackage(selectedItem);
+            await SelectedProject.AddProject(selectedItem.RegisteredProject, _solution);
+        }
+
+        private void RegisterProjectFileWithNugetPackage(NugetPackage package)
+        {
+            if(_solution is null) 
+                return;
+
+            MessageBox.Show("Please register a csproj file with this nuget package before continuing");
+
+            _openFileDialog.InitialDirectory = $@"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}\source\repos\";
+            _openFileDialog.Title = "Please select a csproj file.";
+
+            if (!_openFileDialog.ShowDialog(
+                    OpenFileDialogWrapper.CsprojFileFilter,
+                    CodeRepositoryFolder,
+                    "Please select a csproj file.") ?? false)
+                return;
+
+            var project = new Project(_openFileDialog.FileName, _dotNetCli.Solution(_solution).Projects);
+            package.RegisterWithProject(project);
+        }
+
+        private async Task InitialiseSolutionData()
         {
             SolutionPath = _openFileDialog.FileName;
-            _solution = new Solution(SolutionPath, new DotNetCli());
-            Projects = _solution.Projects;
+            _solution = new Solution(SolutionPath, _dotNetCli);
+            Projects = await _solution.Projects;
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SolutionPath)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Projects)));
@@ -62,7 +106,8 @@ namespace CsSolutionManager.UI.ViewModels
     public interface IMainWindowViewModel
     {
         string SolutionPath { get; set; }
-        void BrowseForSolution();
-        void ProjectSelectionChanged(Project? selectedProject);
+        Task BrowseForSolution();
+        Task ProjectSelectionChanged(Project? selectedProject);
+        Task MoveNugetPackageToProject(NugetPackage? selectedItem);
     }
 }

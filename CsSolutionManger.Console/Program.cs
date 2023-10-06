@@ -1,5 +1,6 @@
 ﻿using CsSolutionManger.Console.DotNetCli;
 using CsSolutionManger.Console.Interfaces;
+using CsSolutionManger.Console.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -36,12 +37,13 @@ internal class Program
                 services.AddSingleton<ICsSolutionManagerService, CsSolutionManagerService>();
                 services.AddSingleton<IConsole, Console>();
                 services.AddSingleton(typeof(ISolution), _solution);
+                services.AddSingleton<IReferenceManagementService, ReferenceManagementService>();
             });
 }
 
 public interface ICsSolutionManagerService
 {
-    void RunProjectSelection();
+    Task RunProjectSelection();
 }
 
 public class CsSolutionManagerService : ICsSolutionManagerService
@@ -57,19 +59,19 @@ public class CsSolutionManagerService : ICsSolutionManagerService
         _console = console;
     }
 
-    public void RunProjectSelection()
+    public async Task RunProjectSelection()
     {
-        Project selectedProject = GetSelectedProject();
-        NugetPackage selectedPackage = GetSelectedPackage(selectedProject);
+        Project selectedProject = await GetSelectedProject();
+        NugetPackage selectedPackage = await GetSelectedPackage(selectedProject);
 
         _console.WriteLine("\n***** SWITCH TO CSPROJ (Y/N?) *****\n");
 
         bool switchToCsproj = GetKeyBoolean(_console.ReadKey().Key);
     }
 
-    private Project GetSelectedProject()
+    private async Task<Project> GetSelectedProject()
     {
-        List<Project> projects = _solution.Projects;
+        List<Project> projects = await _solution.Projects;
 
         _console.WriteLine("***** SELECT PROJECT *****\n");
 
@@ -83,9 +85,9 @@ public class CsSolutionManagerService : ICsSolutionManagerService
         return projects.ElementAt(selectedProjectNumber);
     }
 
-    private NugetPackage GetSelectedPackage(Project project)
+    private async Task<NugetPackage> GetSelectedPackage(Project project)
     {
-        List<NugetPackage> packages = project.Packages;
+        List<NugetPackage> packages = await project.Packages;
 
         _console.WriteLine("\n***** SELECT NUGET PACKAGE *****\n");
 

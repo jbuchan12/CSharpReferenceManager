@@ -1,8 +1,11 @@
-﻿namespace CsSolutionManger.Console.Interfaces;
+﻿using CsSolutionManger.Console.Models;
+
+namespace CsSolutionManger.Console.Interfaces;
 
 public interface IProject : IVisualStudioObject
 {
-    List<NugetPackage> Packages { get; }
-    void AddPackage(NugetPackage project);
-    void RemovePackage(NugetPackage project);
+    Task<List<NugetPackage>> Packages { get; }
+    Task AddPackage(NugetPackage project);
+    Task RemovePackage(NugetPackage project);
+    Task AddProject(Project project, ISolution solution);
 }

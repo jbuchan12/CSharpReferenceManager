@@ -32,8 +32,12 @@ public partial class App : Application
                     l.AddNLog();
                 });
                 services.AddSingleton<ICsSolutionManagerService, CsSolutionManagerService>();
-                services.AddSingleton<IMainWindowViewModel, MainWindowViewModel>();
                 services.AddSingleton<IOpenFileDialog, OpenFileDialogWrapper>();
+                services.AddSingleton<IReferenceManagementService, ReferenceManagementService>();
+
+                //WPF Windows
                 services.AddTransient(typeof(MainWindow));
+                //View Models
+                services.AddSingleton<IMainWindowViewModel, MainWindowViewModel>();
             });
 }
