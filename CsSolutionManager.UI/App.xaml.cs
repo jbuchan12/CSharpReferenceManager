@@ -1,10 +1,9 @@
 ﻿using System.Windows;
-using CsSolutionManager.UI.ViewModels;
-using CsSolutionManger.Console;
+using CsSolutionManager.BusinessLogic.Interfaces;
+using CsSolutionManager.BusinessLogic.Services;
+using CsSolutionManager.BusinessLogic.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using NLog.Extensions.Logging;
 
 namespace CsSolutionManager.UI;
 

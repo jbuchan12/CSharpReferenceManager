@@ -1,29 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Threading.Tasks;
-using System.Windows;
-using CsSolutionManger.Console;
-using CsSolutionManger.Console.DotNetCli;
-using CsSolutionManger.Console.Interfaces;
-using CsSolutionManger.Console.Models;
+﻿using System.ComponentModel;
+using CsSolutionManager.BusinessLogic.Interfaces;
+using CsSolutionManager.BusinessLogic.Services;
+using DotNet.Cli.CommandLineInterfaces;
+using DotNet.Cli.VisualStudio;
 
-namespace CsSolutionManager.UI.ViewModels
+namespace CsSolutionManager.BusinessLogic.ViewModels
 {
     public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
     {
         private readonly IOpenFileDialog _openFileDialog;
         private readonly IReferenceManagementService _referenceManagementService;
-        private readonly DotNetCli _dotNetCli;
+        private readonly DotNetCommandLineInterface _dotNetCli;
         private ISolution? _solution;
-
         private static string CodeRepositoryFolder => $@"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}\source\repos\";
 
         public MainWindowViewModel(IOpenFileDialog openFileDialog, IReferenceManagementService referenceManagementService)
         {
             _openFileDialog = openFileDialog;
             _referenceManagementService = referenceManagementService;
-            _dotNetCli = new DotNetCli();
+            _dotNetCli = new DotNetCommandLineInterface();
         }
 
         public string SolutionPath { get; set; } = string.Empty;
@@ -36,7 +31,7 @@ namespace CsSolutionManager.UI.ViewModels
         public async Task BrowseForSolution()
         {
             if (!(_openFileDialog.ShowDialog(
-                    OpenFileDialogWrapper.SolutionFileFilter,
+                    OpenFileDialogFilter.SolutionFileFilter,
                     CodeRepositoryFolder,
                     "Please select a solution file.") ?? false)) 
                 return;
@@ -57,40 +52,11 @@ namespace CsSolutionManager.UI.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProjectReferences)));
         }
 
-        public async Task MoveNugetPackageToProject(NugetPackage? selectedItem)
-        {
-            if(selectedItem is null || SelectedProject is null || _solution is null)
-                return;
+        public async Task MoveNugetPackageToProject(NugetPackage? selectedItem) => 
+            await _referenceManagementService.ChangeToProjectReference(selectedItem, SelectedProject, _solution);
 
-            if (selectedItem.RegisteredProject is null)
-                RegisterProjectFileWithNugetPackage(selectedItem);
-
-            if(selectedItem.RegisteredProject is null)
-                return;
-
-            await SelectedProject.RemovePackage(selectedItem);
-            await SelectedProject.AddProject(selectedItem.RegisteredProject, _solution);
-        }
-
-        private void RegisterProjectFileWithNugetPackage(NugetPackage package)
-        {
-            if(_solution is null) 
-                return;
-
-            MessageBox.Show("Please register a csproj file with this nuget package before continuing");
-
-            _openFileDialog.InitialDirectory = $@"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}\source\repos\";
-            _openFileDialog.Title = "Please select a csproj file.";
-
-            if (!_openFileDialog.ShowDialog(
-                    OpenFileDialogWrapper.CsprojFileFilter,
-                    CodeRepositoryFolder,
-                    "Please select a csproj file.") ?? false)
-                return;
-
-            var project = new Project(_openFileDialog.FileName, _dotNetCli.Solution(_solution).Projects);
-            package.RegisterWithProject(project);
-        }
+        public async Task MoveProjectToNugetPackage(Project selectedProject) =>
+            await _referenceManagementService.ChangeToNugetReference(selectedProject, null, _solution);
 
         private async Task InitialiseSolutionData()
         {
@@ -109,5 +75,6 @@ namespace CsSolutionManager.UI.ViewModels
         Task BrowseForSolution();
         Task ProjectSelectionChanged(Project? selectedProject);
         Task MoveNugetPackageToProject(NugetPackage? selectedItem);
+        Task MoveProjectToNugetPackage(Project selectedProject);
     }
 }

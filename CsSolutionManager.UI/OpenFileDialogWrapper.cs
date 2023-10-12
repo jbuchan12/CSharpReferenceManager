@@ -1,11 +1,10 @@
-﻿namespace CsSolutionManager.UI.ViewModels;
+﻿using CsSolutionManager.BusinessLogic.Interfaces;
+
+namespace CsSolutionManager.UI;
 
 public class OpenFileDialogWrapper : IOpenFileDialog
 {
     private readonly Microsoft.Win32.OpenFileDialog _dialog = new();
-
-    public const string CsprojFileFilter = "CsProj Files (*.csproj)|*.csproj";
-    public const string SolutionFileFilter = "Solution Files (*.sln)|*.sln";
 
     public string Filter
     {
@@ -40,14 +39,4 @@ public class OpenFileDialogWrapper : IOpenFileDialog
          Title = title;
          return ShowDialog();
     }
-}
-
-public interface IOpenFileDialog
-{
-    string Filter { get; set; }
-    string InitialDirectory { get; set; }
-    string Title { get; set; }
-    string FileName { get; set; }
-    bool? ShowDialog();
-    bool? ShowDialog(string filter, string initialDirectory, string title);
 }

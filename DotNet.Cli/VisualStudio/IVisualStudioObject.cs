@@ -1,6 +1,4 @@
-﻿using CsSolutionManger.Console.Models;
-
-namespace CsSolutionManger.Console.Interfaces;
+﻿namespace DotNet.Cli.VisualStudio;
 
 public interface IVisualStudioObject
 {

@@ -1,4 +1,4 @@
-﻿namespace CsSolutionManger.Console.Models;
+﻿namespace DotNet.Cli.VisualStudio;
 
 public class NugetPackage
 {

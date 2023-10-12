@@ -1,10 +1,9 @@
 ﻿using System.Diagnostics;
-using CsSolutionManger.Console.Interfaces;
-using CsSolutionManger.Console.Models;
+using DotNet.Cli.VisualStudio;
 
-namespace CsSolutionManger.Console.DotNetCli;
+namespace DotNet.Cli.CommandLineInterfaces;
 
-public abstract class CliApi
+public abstract class CommandLineInterface
 {
     public string Command { get; protected set; } = string.Empty;
 
@@ -31,10 +30,10 @@ public abstract class CliApi
         return await process.StandardOutput.ReadToEndAsync();
     }
 
-    protected List<Project> ParseCommandOutput<TVisualStudioObject>(string output, string directory, ProjectsCliApi<TVisualStudioObject> cliApi) 
+    protected List<Project> ParseCommandOutput<TVisualStudioObject>(string output, string directory, ProjectsCommandLineInterface<TVisualStudioObject> commandLineInterface)
         where TVisualStudioObject : IVisualStudioObject
         => output.Split("\r\n")
         .Where(x => x.EndsWith(".csproj"))
-        .Select(x => new Project(x, directory, cliApi))
+        .Select(x => new Project(x, directory, commandLineInterface))
         .ToList();
 }

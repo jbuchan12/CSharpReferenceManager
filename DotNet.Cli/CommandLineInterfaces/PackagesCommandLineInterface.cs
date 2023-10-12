@@ -1,12 +1,12 @@
-﻿using CsSolutionManger.Console.Models;
+﻿using DotNet.Cli.VisualStudio;
 
-namespace CsSolutionManger.Console.DotNetCli;
+namespace DotNet.Cli.CommandLineInterfaces;
 
-public class PackagesCliApi : CliApi
+public class PackagesCommandLineInterface : CommandLineInterface
 {
     private readonly Project _project;
 
-    public PackagesCliApi(Project project)
+    public PackagesCommandLineInterface(Project project)
     {
         _project = project;
     }

@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CsSolutionManger.Console\CsSolutionManger.Console.csproj" />
+    <ProjectReference Include="..\CsSolutionManager.BusinessLogic\CsSolutionManager.BusinessLogic.csproj" />
   </ItemGroup>
 
 </Project>
