@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CsSolutionManager.BusinessL
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNet.Cli", "DotNet.Cli\DotNet.Cli.csproj", "{FD72FF20-AF79-4FF7-9ED6-CA5B9C658705}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CsSolutionManager.DataLayer", "CsSolutionManager.DataLayer\CsSolutionManager.DataLayer.csproj", "{CD656207-BEF6-4550-8051-2D5F9876E71A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{FD72FF20-AF79-4FF7-9ED6-CA5B9C658705}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD72FF20-AF79-4FF7-9ED6-CA5B9C658705}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD72FF20-AF79-4FF7-9ED6-CA5B9C658705}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD656207-BEF6-4550-8051-2D5F9876E71A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD656207-BEF6-4550-8051-2D5F9876E71A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD656207-BEF6-4550-8051-2D5F9876E71A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD656207-BEF6-4550-8051-2D5F9876E71A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

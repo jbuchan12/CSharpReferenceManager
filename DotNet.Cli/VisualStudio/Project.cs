@@ -4,7 +4,7 @@ namespace DotNet.Cli.VisualStudio;
 
 public class Project : IProject
 {
-    private readonly IProjectsCommandLineInterface _projectsCommandLineInterface;
+    private readonly IProjectsCommandLineInterface? _projectsCommandLineInterface;
 
     public Project(string name, string directory, IProjectsCommandLineInterface projectsCommandLineInterface)
     {
@@ -22,27 +22,41 @@ public class Project : IProject
         Name = Path.GetFileName(fileName);
     }
 
+    public Project(string name, string directory)
+    {
+        Directory = directory;
+        Name = name;
+    }
+
     public Guid Id { get; set; }
     public string Name { get; }
     public string Directory { get; }
 
     public Task<List<Project>> Projects
-        => _projectsCommandLineInterface.Projects(this).Get();
+        => GetProjectsCommandLineInterface().Projects(this).Get();
 
     public async Task AddProject(Project project, ISolution solution)
-        => await _projectsCommandLineInterface.Projects(this).Add(project, solution.Directory);
+        => await GetProjectsCommandLineInterface().Projects(this).Add(project, solution.Directory);
 
     public async Task RemoveProject(Project project)
-        => await _projectsCommandLineInterface.Projects(this).Remove(project);
+        => await GetProjectsCommandLineInterface().Projects(this).Remove(project);
 
     public Task<List<NugetPackage>> Packages
-        => _projectsCommandLineInterface.Packages(this).Get();
+        => GetProjectsCommandLineInterface().Packages(this).Get();
 
     public Task AddPackage(NugetPackage project)
-        => _projectsCommandLineInterface.Packages(this).Add(project);
+        => GetProjectsCommandLineInterface().Packages(this).Add(project);
 
     public Task RemovePackage(NugetPackage project)
-        => _projectsCommandLineInterface.Packages(this).Remove(project);
+        => GetProjectsCommandLineInterface().Packages(this).Remove(project);
+
+    private IProjectsCommandLineInterface GetProjectsCommandLineInterface()
+    {
+        if (_projectsCommandLineInterface is null)
+            throw new InvalidOperationException("No projects command line interface");
+
+        return _projectsCommandLineInterface;
+    }
 }
 
 public interface IProject : IVisualStudioObject

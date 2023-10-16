@@ -10,10 +10,5 @@ public class NugetPackage
 
     public string Name { get; set; }
     public string Version { get; }
-    public Project? RegisteredProject { get; private set; }
-
-    public void RegisterWithProject(Project matchingProject)
-    {
-        RegisteredProject = matchingProject;
-    }
+    public Project? RegisteredProject { get; set; }
 }

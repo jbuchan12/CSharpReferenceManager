@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CsSolutionManager.DataLayer\CsSolutionManager.DataLayer.csproj" />
     <ProjectReference Include="..\DotNet.Cli\DotNet.Cli.csproj" />
   </ItemGroup>
 

@@ -4,7 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CsSolutionManager.UI"
-        xmlns:console="clr-namespace:CsSolutionManger.Console;assembly=CsSolutionManger.Console" xmlns:viewmodels="clr-namespace:CsSolutionManager.UI.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
+        xmlns:viewModels="clr-namespace:CsSolutionManager.BusinessLogic.ViewModels;assembly=CsSolutionManager.BusinessLogic"
+        xmlns:visualStudio="clr-namespace:DotNet.Cli.VisualStudio;assembly=DotNet.Cli"
+        d:DataContext="{d:DesignInstance Type=viewModels:MainWindowViewModel}"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
@@ -15,15 +17,15 @@
         <Label Content="Project" HorizontalAlignment="Left" Margin="457,8,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.141,-2.494"/>
         <DataGrid x:Name="DgNugetPackages" ItemsSource="{Binding NugetPackages}" AutoGenerateColumns="False" Margin="10,72,427,10">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Name" Width="1*" Binding="{Binding Path=(console:NugetPackage.Name)}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Name" Width="1*" Binding="{Binding Path=(visualStudio:NugetPackage.Name)}"></DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
         <Label Content="Nuget packages" HorizontalAlignment="Left" HorizontalContentAlignment="Center" Margin="10,41,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.141,-2.494" Width="363"/>
         <Button x:Name="BtnRight" Content="Right" HorizontalAlignment="Center" Margin="0,188,0,0" VerticalAlignment="Top" Width="44" Click="BtnRight_Click"/>
         <Button x:Name="BtLeft" Content="Left" HorizontalAlignment="Center" Margin="0,238,0,0" VerticalAlignment="Top" Width="44" Click="BtLeft_Click"/>
-        <DataGrid ItemsSource="{Binding ProjectReferences}" AutoGenerateColumns="False" Margin="428,72,10,10">
+        <DataGrid x:Name="DgProjects" ItemsSource="{Binding ProjectReferences}" AutoGenerateColumns="False" Margin="428,72,10,10">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Name" Width="1*" Binding="{Binding Path=(console:Project.Name)}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Name" Width="1*" Binding="{Binding Path=(visualStudio:Project.Name)}"></DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
         <Label Content="Project References" HorizontalAlignment="Left" HorizontalContentAlignment="Center" Margin="428,41,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.141,-2.494" Width="362"/>
