@@ -6,7 +6,6 @@ using CsSolutionManager.DataLayer;
 using CsSolutionManager.DataLayer.Entities;
 using CsSolutionManager.DataLayer.Repositories;
 using CsSolutionManager.UI.UIWrappers;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -41,20 +40,27 @@ public partial class App : Application
                 //Wrappers
                 services.AddSingleton<IOpenFileDialog, OpenFileDialogWrapper>();
                 services.AddSingleton<IMessageBox, MessageBoxWrapper>();
+
                 //WPF Windows
                 services.AddTransient(typeof(MainWindow));
+
                 //View Models
                 services.AddSingleton<IMainWindowViewModel, MainWindowViewModel>();
+
                 //Services
                 services.AddSingleton<IReferenceManagementService, ReferenceManagementService>();
                 services.AddSingleton<ISolutionService, SolutionService>();
                 services.AddSingleton<IApplicationHistoryService, ApplicationHistoryService>();
                 services.AddSingleton<IMapperService, MapperService>();
+
                 //EF
                 services.AddSingleton<ICsSolutionManagerContext, CsSolutionManagerContext>();
+
+                //EF Repos
                 services.AddSingleton<IApplicationHistoryRepository, ApplicationHistoryRepository>();
                 services.AddSingleton<ISolutionRepository, SolutionRepository>();
                 services.AddSingleton<IGenericRepository<ApplicationHistory>, GenericRepository<ApplicationHistory>>();
                 services.AddSingleton<INugetPackageRepository, NugetPackageRepository>();
+                services.AddSingleton<IProjectRepository, ProjectRepository>();
             });
 }

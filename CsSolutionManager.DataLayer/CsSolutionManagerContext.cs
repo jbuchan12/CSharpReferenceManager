@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using CsSolutionManager.DataLayer.Entities;
+﻿using CsSolutionManager.DataLayer.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 

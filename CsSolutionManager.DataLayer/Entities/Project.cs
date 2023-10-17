@@ -9,6 +9,8 @@ public class Project : IEntity
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Directory { get; set; } = string.Empty;
-    [ForeignKey(nameof(NugetPackage.Project))]
-    public Guid NugetId { get; set; }
+    [ForeignKey("NugetPackage")]
+    public Guid NugetPackageId { get; set; }
+    [NotMapped]
+    public NugetPackage? NugetPackage { get; set; }
 }

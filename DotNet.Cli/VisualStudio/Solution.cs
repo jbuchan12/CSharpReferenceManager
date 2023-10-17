@@ -28,8 +28,8 @@ public class Solution : ISolution
     public Task AddProject(Project project)
         => _solutionCommandLineInterface.Projects.Add(project, Directory);
 
-    public Task RemoveProject(Project project)
-        => _solutionCommandLineInterface.Projects.Remove(project);
+    public Task RemoveProject(Project project, ISolution solution)
+        => _solutionCommandLineInterface.Projects.Remove(project, solution.Directory);
 }
 
 public interface ISolution : IVisualStudioObject

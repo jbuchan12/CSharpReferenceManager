@@ -32,12 +32,18 @@ public class ProjectsCommandLineInterface<TVisualStudioObject> : CommandLineInte
     {
         Command = $"sln add \"{project.Directory}\\{project.Name}\"";
         _ = await RunDotnetCommand(solutionDirectory);
+
+        Command = $"add {_vsObject.Name} reference \"{project.Directory}\\{project.Name}\"";
+        _ = await RunDotnetCommand(_vsObject.Directory);
     }
 
-    public async Task Remove(Project project)
+    public async Task Remove(Project project, string solutionDirectory)
     {
-        Command = $"sln remove {project.Name}";
-        _ = await RunDotnetCommand(project.Directory);
+        Command = $"sln remove \"{project.Directory}\\{project.Name}\"";
+        _ = await RunDotnetCommand(solutionDirectory);
+
+        Command = $"remove {_vsObject.Name} reference \"{project.Directory}\\{project.Name}\"";
+        _ = await RunDotnetCommand(_vsObject.Directory);
     }
 }
 
@@ -47,6 +53,6 @@ public interface IProjectsCommandLineInterface
     ProjectsCommandLineInterface<IProject> Projects(Project project);
     Task<List<Project>> Get();
     Task Add(Project project, string solutionDirectory);
-    Task Remove(Project project);
+    Task Remove(Project project, string solutionDirectory);
     string Command { get; }
 }

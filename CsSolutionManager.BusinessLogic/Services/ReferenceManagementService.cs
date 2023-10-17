@@ -15,17 +15,22 @@ public class ReferenceManagementService : IReferenceManagementService
     private readonly IOpenFileDialog _openFileDialog;
     private readonly IMessageBox _messageBox;
     private readonly INugetPackageRepository _nugetPackageRepository;
+    private readonly IProjectRepository _projectRepository;
     private readonly IMapperService _mapper;
 
-    public ReferenceManagementService(IOpenFileDialog openFileDialog, IMessageBox messageBox, INugetPackageRepository nugetPackageRepository, IMapperService mapper)
+    public ReferenceManagementService(
+        IOpenFileDialog openFileDialog, 
+        IMessageBox messageBox, 
+        INugetPackageRepository nugetPackageRepository, 
+        IProjectRepository projectRepository, 
+        IMapperService mapper)
     {
         _openFileDialog = openFileDialog;
         _messageBox = messageBox;
         _nugetPackageRepository = nugetPackageRepository;
+        _projectRepository = projectRepository;
         _mapper = mapper;
     }
-
-    public EventHandler<EventArgs>? SolutionFileChanged { get; set; }
 
     public async Task ChangeToProjectReference(NugetPackage? nugetPackage, Project? project, ISolution? solution)
     {
@@ -42,16 +47,26 @@ public class ReferenceManagementService : IReferenceManagementService
 
         await project.RemovePackage(nugetPackage);
         await project.AddProject(nugetPackage.RegisteredProject, solution);
-
-        SolutionFileChanged?.Invoke(this, EventArgs.Empty);
+        await project.RefreshData();
     }
 
-    public async Task ChangeToNugetReference(Project? project, NugetPackage? nugetPackage, ISolution? solution)
+    public async Task ChangeToNugetReference(Project? selectedProject, Project? referencedProject, ISolution? solution)
     {
-        if (nugetPackage is null || project is null || solution is null)
+        if (selectedProject is null || referencedProject is null || solution is null)
             return;
 
-        throw new NotImplementedException();
+        DataLayer.Entities.Project? dbProject = _projectRepository.GetIncludingNugetPackage(referencedProject.Name);
+        if (dbProject?.NugetPackage is not null)
+        {
+            referencedProject.LinkedNugetPackage = _mapper.MapTo<NugetPackage>(dbProject.NugetPackage);
+        }
+
+        if (referencedProject.LinkedNugetPackage is null)
+            return;
+
+        await selectedProject.RemoveProject(referencedProject, solution);
+        await selectedProject.AddPackage(referencedProject.LinkedNugetPackage);
+        await selectedProject.RefreshData();
     }
 
     private Project? CheckForRegisteredProjectWithDb(NugetPackage nugetPackage)
@@ -60,7 +75,7 @@ public class ReferenceManagementService : IReferenceManagementService
 
         return project is null 
             ? null : 
-            _mapper.Map<Project>(project);
+            _mapper.MapTo<Project>(project);
     }
 
     private void RegisterProjectFileWithNugetPackage(NugetPackage package, ISolution solution)
@@ -80,12 +95,12 @@ public class ReferenceManagementService : IReferenceManagementService
         package.RegisteredProject = project;
 
         _ = _nugetPackageRepository.Add(
-            _mapper.Map<DataLayer.Entities.NugetPackage>(package));
+            _mapper.MapTo<DataLayer.Entities.NugetPackage>(package));
     }
 }
 
 public interface IReferenceManagementService
 {
     Task ChangeToProjectReference(NugetPackage? nugetPackage, Project? selectedProject, ISolution? solution);
-    Task ChangeToNugetReference(Project? project, NugetPackage? nugetPackage, ISolution? solution);
+    Task ChangeToNugetReference(Project? selectedProject, Project? referencedProject, ISolution? solution);
 }

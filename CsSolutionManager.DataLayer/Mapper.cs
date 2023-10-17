@@ -1,5 +1,4 @@
 ﻿using CsSolutionManager.DataLayer.Entities;
-using DotNet.Cli.CommandLineInterfaces;
 
 namespace CsSolutionManager.DataLayer;
 
@@ -28,7 +27,7 @@ public class MapperService : IMapperService
                Id = Guid.NewGuid(),
                Name = input.Name,
                Project = input.RegisteredProject is not null 
-                   ? new MapperService().Map<Project>(input.RegisteredProject)
+                   ? new MapperService().MapTo<Project>(input.RegisteredProject)
                    : default,
                Version = input.Version,
             };
@@ -48,22 +47,32 @@ public class MapperService : IMapperService
         {
             var input = (Project)o;
             return new DotNet.Cli.VisualStudio.Project(input.Name, input.Directory);
+        }),
+        new Mapping(typeof(NugetPackage), o =>
+        {
+            var input = (NugetPackage)o;
+            return new DotNet.Cli.VisualStudio.NugetPackage(input.Name, input.Version)
+            {
+                RegisteredProject = input.Project is not null
+                    ? new MapperService().MapTo<DotNet.Cli.VisualStudio.Project>(input.Project)
+                    : default,
+            };
         })
     };
 
-    public T Map<T>(object input)
+    public T MapTo<T>(object inputObject)
     {
         Mapping mapping = _mappings
-            .SingleOrDefault(x => x.InputType == input.GetType()) 
+            .SingleOrDefault(x => x.InputType == inputObject.GetType()) 
             ?? throw new ArgumentException("Not type mappings matched the input");
 
-        return (T)mapping.MapAction(input);
+        return (T)mapping.MapAction(inputObject);
     }
 }
 
 public interface IMapperService
 {
-    T Map<T>(object input);
+    T MapTo<T>(object inputObject);
 }
 
 public class Mapping

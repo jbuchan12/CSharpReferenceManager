@@ -53,10 +53,12 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
             return;
 
         SelectedProject = selectedProject;
-        NugetPackages = await selectedProject.Packages;
-        ProjectReferences = await selectedProject.Projects;
-
-        InvokePropertyChangedEventArgs(nameof(NugetPackages), nameof(ProjectReferences));
+        selectedProject.ProjectDataChanged += async (sender, args) =>
+        {
+            await RefreshGrids();
+        };
+        
+        await RefreshGrids();
     }
 
     private async Task<ISolution> SetSolution(string path)
@@ -73,20 +75,26 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
         return _solutionService.CurrentSolution;
     }
 
+    private async Task RefreshGrids()
+    {
+        if (SelectedProject is null)
+            return;
+
+        NugetPackages = await SelectedProject.Packages;
+        ProjectReferences = await SelectedProject.Projects;
+
+        InvokePropertyChangedEventArgs(nameof(NugetPackages), nameof(ProjectReferences));
+    }
+
     #region Events
 
     public async Task MoveNugetPackageToProject(NugetPackage? selectedItem) =>
         await _referenceManagementService.ChangeToProjectReference(selectedItem, SelectedProject, _solutionService.CurrentSolution);
 
-    public async Task MoveProjectToNugetPackage(Project? selectedProject) =>
-        await _referenceManagementService.ChangeToNugetReference(selectedProject, null, _solutionService.CurrentSolution);
+    public async Task MoveProjectToNugetPackage(Project? referencedProject) =>
+        await _referenceManagementService.ChangeToNugetReference(SelectedProject, referencedProject, _solutionService.CurrentSolution);
 
     public event PropertyChangedEventHandler? PropertyChanged;
-
-    private void InvokePropertyChangedEventArgs(params string[] propertyNames)
-        => propertyNames
-            .ToList()
-            .ForEach(propertyName => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)));
 
     public async Task OnWindowReady(object sender, object routedEventArgs)
     {
@@ -97,15 +105,19 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
         await SetSolution(latestVersion.Solution.FullPath);
     }
 
+    private void InvokePropertyChangedEventArgs(params string[] propertyNames)
+        => propertyNames
+            .ToList()
+            .ForEach(propertyName => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)));
+
     #endregion
 }
 
 public interface IMainWindowViewModel
 {
-    string SolutionPath { get; set; }
     Task BrowseForSolution();
     Task ProjectSelectionChanged(Project? selectedProject);
     Task MoveNugetPackageToProject(NugetPackage? selectedItem);
-    Task MoveProjectToNugetPackage(Project? selectedProject);
+    Task MoveProjectToNugetPackage(Project? referencedProject);
     Task OnWindowReady(object sender, object routedEventArgs);
 }

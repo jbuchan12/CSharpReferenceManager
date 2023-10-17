@@ -7,12 +7,12 @@ public abstract class CommandLineInterface
 {
     public string Command { get; protected set; } = string.Empty;
 
-    protected async Task<string> RunDotnetCommand(string workingDirectory)
+    protected async Task<string> RunDotnetCommand(string workingDirectory, bool isInteractive = false)
     {
         Process? process = Process.Start(new ProcessStartInfo($"dotnet")
         {
             Arguments = Command,
-            CreateNoWindow = true,
+            CreateNoWindow = !isInteractive,
             UseShellExecute = false,
             RedirectStandardError = true,
             RedirectStandardInput = true,
@@ -24,8 +24,9 @@ public abstract class CommandLineInterface
 
         string error = await process.StandardError.ReadToEndAsync();
 
-        if (!string.IsNullOrEmpty(error))
-            throw new Exception(error);
+        Exception? exception = GetCliException(error);
+        if (exception is not null)
+            throw exception;
 
         return await process.StandardOutput.ReadToEndAsync();
     }
@@ -36,4 +37,32 @@ public abstract class CommandLineInterface
         .Where(x => x.EndsWith(".csproj"))
         .Select(x => new Project(x, directory, commandLineInterface))
         .ToList();
+
+    private Exception? GetCliException(string errorMessage)
+    {
+        if (string.IsNullOrEmpty(errorMessage))
+            return null;
+
+        return errorMessage.Contains("Unable to read a package reference from the project") 
+            ? new DotNetPackageReferenceReadException(errorMessage) 
+            : new DotNetCliErrorException(errorMessage);
+    }
+}
+
+public class DotNetCliErrorException : Exception
+{
+    public string CommandLineError { get; }
+
+    public DotNetCliErrorException(string commandLineError)
+    {
+        CommandLineError = commandLineError;
+    }
+}
+
+public class DotNetPackageReferenceReadException : DotNetCliErrorException
+{
+    public DotNetPackageReferenceReadException(string commandLineError) : base(commandLineError)
+    {
+
+    }
 }

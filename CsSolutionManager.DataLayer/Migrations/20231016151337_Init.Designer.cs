@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CsSolutionManager.DataLayer.Migrations
 {
     [DbContext(typeof(CsSolutionManagerContext))]
-    [Migration("20231013133355_Initial_Migration")]
-    partial class Initial_Migration
+    [Migration("20231016151337_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -53,16 +53,11 @@ namespace CsSolutionManager.DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("ProjectId")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Version")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
 
                     b.ToTable("NugetPackages");
                 });
@@ -81,10 +76,13 @@ namespace CsSolutionManager.DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("NugetId")
+                    b.Property<Guid>("NugetPackageId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("NugetPackageId")
+                        .IsUnique();
 
                     b.ToTable("Projects");
                 });
@@ -123,12 +121,17 @@ namespace CsSolutionManager.DataLayer.Migrations
                     b.Navigation("Solution");
                 });
 
+            modelBuilder.Entity("CsSolutionManager.DataLayer.Entities.Project", b =>
+                {
+                    b.HasOne("CsSolutionManager.DataLayer.Entities.NugetPackage", null)
+                        .WithOne("Project")
+                        .HasForeignKey("CsSolutionManager.DataLayer.Entities.Project", "NugetPackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("CsSolutionManager.DataLayer.Entities.NugetPackage", b =>
                 {
-                    b.HasOne("CsSolutionManager.DataLayer.Entities.Project", "Project")
-                        .WithMany()
-                        .HasForeignKey("ProjectId");
-
                     b.Navigation("Project");
                 });
 #pragma warning restore 612, 618

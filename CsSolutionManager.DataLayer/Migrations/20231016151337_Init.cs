@@ -6,23 +6,22 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CsSolutionManager.DataLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial_Migration : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Projects",
+                name: "NugetPackages",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Directory = table.Column<string>(type: "TEXT", nullable: false),
-                    NugetId = table.Column<Guid>(type: "TEXT", nullable: false)
+                    Version = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Projects", x => x.Id);
+                    table.PrimaryKey("PK_NugetPackages", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -40,22 +39,23 @@ namespace CsSolutionManager.DataLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "NugetPackages",
+                name: "Projects",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Version = table.Column<string>(type: "TEXT", nullable: false),
-                    ProjectId = table.Column<Guid>(type: "TEXT", nullable: true)
+                    Directory = table.Column<string>(type: "TEXT", nullable: false),
+                    NugetPackageId = table.Column<Guid>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_NugetPackages", x => x.Id);
+                    table.PrimaryKey("PK_Projects", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_NugetPackages_Projects_ProjectId",
-                        column: x => x.ProjectId,
-                        principalTable: "Projects",
-                        principalColumn: "Id");
+                        name: "FK_Projects_NugetPackages_NugetPackageId",
+                        column: x => x.NugetPackageId,
+                        principalTable: "NugetPackages",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -84,9 +84,10 @@ namespace CsSolutionManager.DataLayer.Migrations
                 column: "SolutionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_NugetPackages_ProjectId",
-                table: "NugetPackages",
-                column: "ProjectId");
+                name: "IX_Projects_NugetPackageId",
+                table: "Projects",
+                column: "NugetPackageId",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -96,13 +97,13 @@ namespace CsSolutionManager.DataLayer.Migrations
                 name: "ApplicationHistory");
 
             migrationBuilder.DropTable(
-                name: "NugetPackages");
+                name: "Projects");
 
             migrationBuilder.DropTable(
                 name: "Solutions");
 
             migrationBuilder.DropTable(
-                name: "Projects");
+                name: "NugetPackages");
         }
     }
 }
