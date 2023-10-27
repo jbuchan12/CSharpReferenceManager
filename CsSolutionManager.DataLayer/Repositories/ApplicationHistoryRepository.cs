@@ -13,7 +13,7 @@ public class ApplicationHistoryRepository : GenericRepository<ApplicationHistory
     public ApplicationHistory? GetLatest() 
         => Get()
             .Include(x => x.Solution)
-            .OrderBy(x => x.Date)
+            .OrderByDescending(x => x.Date)
             .FirstOrDefault();
 }
 

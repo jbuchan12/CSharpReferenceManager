@@ -64,7 +64,7 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
     private async Task<ISolution> SetSolution(string path)
     {
         _solutionService.Init(path);
-        SolutionPath = _solutionService.CurrentSolution?.FullPath ?? string.Empty;
+        SolutionPath = Path.GetFileName(_solutionService.CurrentSolution?.FullPath ?? string.Empty);
         Projects = await _solutionService.GetProjects();
 
         InvokePropertyChangedEventArgs(nameof(SolutionPath), nameof(Projects));
