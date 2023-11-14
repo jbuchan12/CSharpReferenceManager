@@ -36,4 +36,7 @@ public partial class MainWindow : Window
 
     private void BtLeft_Click(object sender, RoutedEventArgs e) 
         => _mainWindowViewModel.MoveProjectToNugetPackage(DgProjects.SelectedItem as Project);
+
+    private void BtnPublish_Click(object sender, RoutedEventArgs e)
+        => _mainWindowViewModel.PublishNugetPackage(DgNugetPackages.SelectedItem as NugetPackage);
 }

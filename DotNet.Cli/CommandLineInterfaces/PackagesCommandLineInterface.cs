@@ -2,7 +2,15 @@
 
 namespace DotNet.Cli.CommandLineInterfaces;
 
-public class PackagesCommandLineInterface : CommandLineInterface
+public interface IPackagesCommandLineInterface
+{
+    Task<List<NugetPackage>> Get();
+    Task Add(NugetPackage package);
+    Task Remove(NugetPackage package);
+    Task Pack(NugetPackage package);
+}
+
+public class PackagesCommandLineInterface : DotNetCommandLineInterface, IPackagesCommandLineInterface
 {
     private readonly Project _project;
 
@@ -46,6 +54,17 @@ public class PackagesCommandLineInterface : CommandLineInterface
     public Task Remove(NugetPackage package)
     {
         Command = $"remove {_project.Name} package {package.Name}";
+        return RunDotnetCommand(_project.Directory);
+    }
+
+    public Task Pack(NugetPackage package)
+    {
+        if (package.RegisteredProject is null)
+            throw new ArgumentNullException(nameof(package.RegisteredProject));
+
+        Project project = package.RegisteredProject;
+
+        Command = $"pack {project.Name} -p:PackageVersion=1.0.2 --configuration release";
         return RunDotnetCommand(_project.Directory);
     }
 

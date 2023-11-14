@@ -9,7 +9,7 @@ public class Solution : ISolution
     public Solution(string solutionFullPath, DotNetCommandLineInterface dotNetCommandLineInterface)
     {
         if (!File.Exists(solutionFullPath))
-            throw new InvalidOperationException("Solution file not found at path");
+            throw new ArgumentException("Solution file not found at path", nameof(solutionFullPath));
 
         FullPath = solutionFullPath;
         Id = Guid.NewGuid();

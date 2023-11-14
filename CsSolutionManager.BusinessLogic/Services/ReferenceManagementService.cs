@@ -69,16 +69,7 @@ public class ReferenceManagementService : IReferenceManagementService
         await selectedProject.RefreshData();
     }
 
-    private Project? CheckForRegisteredProjectWithDb(NugetPackage nugetPackage)
-    {
-        DataLayer.Entities.Project? project = _nugetPackageRepository.GetByName(nugetPackage.Name)?.Project;
-
-        return project is null 
-            ? null : 
-            _mapper.MapTo<Project>(project);
-    }
-
-    private void RegisterProjectFileWithNugetPackage(NugetPackage package, ISolution solution)
+    public void RegisterProjectFileWithNugetPackage(NugetPackage package, ISolution solution)
     {
         _messageBox.Show("Please register a csproj file with this nuget package before continuing");
 
@@ -90,12 +81,21 @@ public class ReferenceManagementService : IReferenceManagementService
 
         var project = new Project(
             _openFileDialog.FileName,
-            new ProjectsCommandLineInterface<ISolution>(solution,string.Empty));
+            new ProjectsCommandLineInterface<ISolution>(solution, string.Empty));
 
         package.RegisteredProject = project;
 
         _ = _nugetPackageRepository.Add(
             _mapper.MapTo<DataLayer.Entities.NugetPackage>(package));
+    }
+
+    private Project? CheckForRegisteredProjectWithDb(NugetPackage nugetPackage)
+    {
+        DataLayer.Entities.Project? project = _nugetPackageRepository.GetByName(nugetPackage.Name)?.Project;
+
+        return project is null 
+            ? null : 
+            _mapper.MapTo<Project>(project);
     }
 }
 
@@ -103,4 +103,5 @@ public interface IReferenceManagementService
 {
     Task ChangeToProjectReference(NugetPackage? nugetPackage, Project? selectedProject, ISolution? solution);
     Task ChangeToNugetReference(Project? selectedProject, Project? referencedProject, ISolution? solution);
+    void RegisterProjectFileWithNugetPackage(NugetPackage package, ISolution solution);
 }

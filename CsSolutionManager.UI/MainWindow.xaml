@@ -8,14 +8,14 @@
         xmlns:visualStudio="clr-namespace:DotNet.Cli.VisualStudio;assembly=DotNet.Cli"
         d:DataContext="{d:DesignInstance Type=viewModels:MainWindowViewModel}"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="500" Width="800">
     <Grid>
         <Button x:Name="BtnBrowserSolution" Content="Browse" HorizontalAlignment="Left" Margin="405,12,0,0" VerticalAlignment="Top" Height="21" Width="47" RenderTransformOrigin="0.723,0.613" Click="BtnBrowserSolution_Click"/>
         <TextBox HorizontalAlignment="Left" Margin="90,12,0,0" TextWrapping="Wrap" Text="{Binding Path=SolutionPath}" VerticalAlignment="Top" Width="310" Height="21"/>
         <Label Content="Solution File" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.141,-2.494"/>
-        <ComboBox HorizontalAlignment="Left" Margin="509,12,0,0" VerticalAlignment="Top" Width="281" ItemsSource="{Binding Path=Projects}" DisplayMemberPath="Name" SelectionChanged="Selector_OnSelectionChanged" SelectedValuePath="Id"/>
+        <ComboBox HorizontalAlignment="Left" Margin="504,14,0,0" VerticalAlignment="Top" Width="281" ItemsSource="{Binding Path=Projects}" DisplayMemberPath="Name" SelectionChanged="Selector_OnSelectionChanged" SelectedValuePath="Id"/>
         <Label Content="Project" HorizontalAlignment="Left" Margin="457,8,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.141,-2.494"/>
-        <DataGrid x:Name="DgNugetPackages" ItemsSource="{Binding NugetPackages}" AutoGenerateColumns="False" Margin="10,72,427,10">
+        <DataGrid x:Name="DgNugetPackages" ItemsSource="{Binding NugetPackages}" AutoGenerateColumns="False" Margin="10,72,427,57">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Name" Width="1*" Binding="{Binding Path=(visualStudio:NugetPackage.Name)}"></DataGridTextColumn>
             </DataGrid.Columns>
@@ -23,11 +23,12 @@
         <Label Content="Nuget packages" HorizontalAlignment="Left" HorizontalContentAlignment="Center" Margin="10,41,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.141,-2.494" Width="363"/>
         <Button x:Name="BtnRight" Content="Right" HorizontalAlignment="Center" Margin="0,188,0,0" VerticalAlignment="Top" Width="44" Click="BtnRight_Click"/>
         <Button x:Name="BtLeft" Content="Left" HorizontalAlignment="Center" Margin="0,238,0,0" VerticalAlignment="Top" Width="44" Click="BtLeft_Click"/>
-        <DataGrid x:Name="DgProjects" ItemsSource="{Binding ProjectReferences}" AutoGenerateColumns="False" Margin="428,72,10,10">
+        <DataGrid x:Name="DgProjects" ItemsSource="{Binding ProjectReferences}" AutoGenerateColumns="False" Margin="428,72,15,57">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Name" Width="1*" Binding="{Binding Path=(visualStudio:Project.Name)}"></DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
         <Label Content="Project References" HorizontalAlignment="Left" HorizontalContentAlignment="Center" Margin="428,41,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.141,-2.494" Width="362"/>
+        <Button x:Name="BtnPublish" Content="Publish" HorizontalAlignment="Left" Margin="10,432,0,0" VerticalAlignment="Top" Width="52" Click="BtnPublish_Click" />
     </Grid>
 </Window>

@@ -16,17 +16,20 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
     private readonly IReferenceManagementService _referenceManagementService;
     private readonly ISolutionService _solutionService;
     private readonly IApplicationHistoryService _applicationHistoryService;
+    private readonly INugetPublishService _nugetPublishService;
 
     public MainWindowViewModel(
         IOpenFileDialog openFileDialog, 
         IReferenceManagementService referenceManagementService, 
         ISolutionService solutionService, 
-        IApplicationHistoryService applicationHistoryService)
+        IApplicationHistoryService applicationHistoryService,
+        INugetPublishService nugetPublishService)
     {
         _openFileDialog = openFileDialog;
         _referenceManagementService = referenceManagementService;
         _solutionService = solutionService;
         _applicationHistoryService = applicationHistoryService;
+        _nugetPublishService = nugetPublishService;
     }
 
     public string SolutionPath { get; set; } = string.Empty;
@@ -43,13 +46,16 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
                 "Please select a solution file.") ?? false)) 
             return;
 
-        ISolution solution = await SetSolution(_openFileDialog.FileName);
+        ISolution? solution = await SetSolution(_openFileDialog.FileName);
+        if(solution is null) 
+            return;
+
         _applicationHistoryService.UpdateSolution(solution);
     }
 
     public async Task ProjectSelectionChanged(Project? selectedProject)
     {
-        if(selectedProject == null) 
+        if(selectedProject is null) 
             return;
 
         SelectedProject = selectedProject;
@@ -61,9 +67,17 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
         await RefreshGrids();
     }
 
-    private async Task<ISolution> SetSolution(string path)
+    private async Task<ISolution?> SetSolution(string path)
     {
-        _solutionService.Init(path);
+        try
+        {
+            _solutionService.Init(path);
+        }
+        catch (ArgumentException e) when(e.ParamName == "solutionFullPath")
+        {
+            return null;
+        }
+
         SolutionPath = _solutionService.CurrentSolution?.FullPath ?? string.Empty;
         Projects = await _solutionService.GetProjects();
 
@@ -110,6 +124,9 @@ public class MainWindowViewModel : IMainWindowViewModel, INotifyPropertyChanged
             .ToList()
             .ForEach(propertyName => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)));
 
+    public void PublishNugetPackage(NugetPackage? selectedItem) 
+        => _nugetPublishService.Publish(selectedItem, _solutionService.CurrentSolution);
+
     #endregion
 }
 
@@ -120,4 +137,5 @@ public interface IMainWindowViewModel
     Task MoveNugetPackageToProject(NugetPackage? selectedItem);
     Task MoveProjectToNugetPackage(Project? referencedProject);
     Task OnWindowReady(object sender, object routedEventArgs);
+    void PublishNugetPackage(NugetPackage? selectedItem);
 }

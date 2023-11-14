@@ -2,7 +2,7 @@
 
 namespace DotNet.Cli.CommandLineInterfaces;
 
-public class ProjectsCommandLineInterface<TVisualStudioObject> : CommandLineInterface, IProjectsCommandLineInterface
+public class ProjectsCommandLineInterface<TVisualStudioObject> : DotNetCommandLineInterface, IProjectsCommandLineInterface
     where TVisualStudioObject : IVisualStudioObject
 {
     private readonly TVisualStudioObject _vsObject;

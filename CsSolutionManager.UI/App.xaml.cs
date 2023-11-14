@@ -2,10 +2,12 @@
 using CsSolutionManager.BusinessLogic.Interfaces;
 using CsSolutionManager.BusinessLogic.Services;
 using CsSolutionManager.BusinessLogic.ViewModels;
+using CsSolutionManager.BusinessLogic.Wrappers;
 using CsSolutionManager.DataLayer;
 using CsSolutionManager.DataLayer.Entities;
 using CsSolutionManager.DataLayer.Repositories;
 using CsSolutionManager.UI.UIWrappers;
+using DotNet.Cli.CommandLineInterfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -40,6 +42,8 @@ public partial class App : Application
                 //Wrappers
                 services.AddSingleton<IOpenFileDialog, OpenFileDialogWrapper>();
                 services.AddSingleton<IMessageBox, MessageBoxWrapper>();
+                services.AddSingleton<IFileSystem, FileSystem>();
+                services.AddSingleton<IPublishCommandLine, PublishCommandLine>();
 
                 //WPF Windows
                 services.AddTransient(typeof(MainWindow));
@@ -52,6 +56,7 @@ public partial class App : Application
                 services.AddSingleton<ISolutionService, SolutionService>();
                 services.AddSingleton<IApplicationHistoryService, ApplicationHistoryService>();
                 services.AddSingleton<IMapperService, MapperService>();
+                services.AddSingleton<INugetPublishService, NugetPublishService>();
 
                 //EF
                 services.AddSingleton<ICsSolutionManagerContext, CsSolutionManagerContext>();
