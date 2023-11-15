@@ -60,7 +60,7 @@ public class PackagesCommandLineInterface : DotNetCommandLineInterface, IPackage
     public Task Pack(NugetPackage package)
     {
         if (package.RegisteredProject is null)
-            throw new ArgumentNullException(nameof(package.RegisteredProject));
+            throw new NullReferenceException("Registered project cannot be null");
 
         package.IncrementPatchVersion();
 

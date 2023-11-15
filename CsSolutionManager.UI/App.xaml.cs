@@ -52,6 +52,7 @@ public partial class App : Application
                 services.AddSingleton<IMainWindowViewModel, MainWindowViewModel>();
 
                 //Services
+                services.AddSingleton<IApplicationService, ApplicationService>();
                 services.AddSingleton<IReferenceManagementService, ReferenceManagementService>();
                 services.AddSingleton<ISolutionService, SolutionService>();
                 services.AddSingleton<IApplicationHistoryService, ApplicationHistoryService>();

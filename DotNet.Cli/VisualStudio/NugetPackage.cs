@@ -18,7 +18,7 @@ public class NugetPackage
     public void Publish(IPublishCommandLine publishCommandLine)
     {
         if (RegisteredProject is null)
-            throw new ArgumentNullException(nameof(RegisteredProject));
+            throw new NullReferenceException("Registered Project cannot be null");
 
         RegisteredProject.LinkedNugetPackage = this;
 

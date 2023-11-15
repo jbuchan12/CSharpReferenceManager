@@ -7,8 +7,7 @@ namespace DotNet.Cli.CommandLineInterfaces
     {
         public async Task<string> PublishNugetPackage(string nugetSource, Project? registerProject)
         {
-            if(registerProject is null)
-                throw new ArgumentNullException(nameof(registerProject));
+            ArgumentNullException.ThrowIfNull(registerProject, nameof(registerProject));
 
             Command = $"push -Source {nugetSource} -ApiKey az {registerProject.ReleaseName}";
 

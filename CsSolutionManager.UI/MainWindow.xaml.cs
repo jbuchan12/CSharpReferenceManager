@@ -1,5 +1,7 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
+using CsSolutionManager.BusinessLogic.Services;
 using CsSolutionManager.BusinessLogic.ViewModels;
 using DotNet.Cli.VisualStudio;
 
@@ -12,12 +14,14 @@ public partial class MainWindow : Window
 {
     private readonly IMainWindowViewModel _mainWindowViewModel;
 
-    public MainWindow(IMainWindowViewModel mainWindowViewModel)
+    public MainWindow(IMainWindowViewModel mainWindowViewModel, IApplicationService applicationService)
     {
         _mainWindowViewModel = mainWindowViewModel;
         InitializeComponent();
 
         DataContext = _mainWindowViewModel;
+
+        applicationService.OutputLabelWriteAction = message => TxtOutput.Content = message;
 
         Loaded += async delegate (object sender, RoutedEventArgs e)
         {

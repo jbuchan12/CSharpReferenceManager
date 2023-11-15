@@ -8,36 +8,43 @@ public class NugetPublishService : INugetPublishService
     private readonly IReferenceManagementService _referenceManagementService;
     private readonly IPublishCommandLine _publishCommandLine;
     private readonly IMessageBox _messageBox;
+    private readonly IApplicationService _applicationService;
 
     public NugetPublishService(
         IReferenceManagementService referenceManagementService,
         IPublishCommandLine publishCommandLine, 
-        IMessageBox messageBox)
+        IMessageBox messageBox,
+        IApplicationService applicationService)
     {
         _referenceManagementService = referenceManagementService;
         _publishCommandLine = publishCommandLine;
         _messageBox = messageBox;
+        _applicationService = applicationService;
     }
 
     public void Publish(NugetPackage? package, ISolution? solution)
     {
-        if(package is null) 
-            throw new ArgumentNullException(nameof(package));
+        _applicationService.WriteToOutputLabel("Publishing package....");
 
-        if(solution is null) 
-            throw new ArgumentNullException(nameof(solution));
+        ArgumentNullException.ThrowIfNull(package, nameof(package));
+        ArgumentNullException.ThrowIfNull(solution, nameof(solution));
 
         if (package.RegisteredProject is null)
             _referenceManagementService.RegisterProjectFileWithNugetPackage(package, solution);
 
         if (package.RegisteredProject is null)
-            throw new ArgumentNullException(nameof(package.RegisteredProject));
+            throw new NullReferenceException("Registered project cannot be null");
+
+        _applicationService.WriteToOutputLabel("Packaging nuget package.....");
 
         var packagesCli = new PackagesCommandLineInterface(package.RegisteredProject);
         packagesCli.Pack(package);
-        
-        if(_messageBox.AskQuestion($"Would you Like to publish {package.RegisteredProject.ReleaseName}?", "Publish package"))
-            package.Publish(_publishCommandLine);
+
+        if (!_messageBox.AskQuestion($"Would you Like to publish {package.RegisteredProject.ReleaseName}?", "Publish package")) 
+            return;
+
+        _applicationService.WriteToOutputLabel("Packaging nuget package.....");
+        package.Publish(_publishCommandLine);
     }
 }
 
