@@ -29,7 +29,7 @@ public class MapperService : IMapperService
                Project = input.RegisteredProject is not null 
                    ? new MapperService().MapTo<Project>(input.RegisteredProject)
                    : default,
-               Version = input.Version,
+               Version = input.Version.ToString(),
             };
         }),
         new Mapping(typeof(DotNet.Cli.VisualStudio.Project), o =>

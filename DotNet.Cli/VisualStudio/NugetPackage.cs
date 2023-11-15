@@ -8,18 +8,25 @@ public class NugetPackage
     public NugetPackage(string name, string version)
     {
         Name = name;
-        Version = version;
+        Version = (NugetPackageVersion)version;
     }
 
     public string Name { get; set; }
-    public string Version { get; }
+    public NugetPackageVersion Version { get; }
     public Project? RegisteredProject { get; set; }
 
-    public void Publish(IPublishCommandLine publishCommandLine, IPackagesCommandLineInterface packagesCommandLineInterface)
+    public void Publish(IPublishCommandLine publishCommandLine)
     {
         if (RegisteredProject is null)
             throw new ArgumentNullException(nameof(RegisteredProject));
 
-        packagesCommandLineInterface.Pack(this);
+        RegisteredProject.LinkedNugetPackage = this;
+
+        publishCommandLine.PublishNugetPackage(
+            "VWW-CSharp", 
+            RegisteredProject);
     }
+
+    internal void IncrementPatchVersion() 
+        => Version.PatchVersion++;
 }

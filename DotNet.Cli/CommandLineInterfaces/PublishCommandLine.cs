@@ -1,13 +1,18 @@
 ﻿
+using DotNet.Cli.VisualStudio;
+
 namespace DotNet.Cli.CommandLineInterfaces
 {
     public class PublishCommandLine : CommandLineInterface, IPublishCommandLine 
     {
-        public async Task<string> PublishNugetPackage(string nugetSource, string packageName, string workingDirectory)
+        public async Task<string> PublishNugetPackage(string nugetSource, Project? registerProject)
         {
-            Command = $"push -Source {nugetSource} -ApiKey az {packageName}";
+            if(registerProject is null)
+                throw new ArgumentNullException(nameof(registerProject));
 
-            return await RunNugetCommand(workingDirectory);
+            Command = $"push -Source {nugetSource} -ApiKey az {registerProject.ReleaseName}";
+
+            return await RunNugetCommand(registerProject.ReleaseDirectory);
         }
 
         protected async Task<string> RunNugetCommand(string workingDirectory, bool isInteractive = false)
@@ -16,6 +21,6 @@ namespace DotNet.Cli.CommandLineInterfaces
 
     public interface IPublishCommandLine
     {
-        Task<string> PublishNugetPackage(string nugetSource, string packageName, string workingDirectory);
+        Task<string> PublishNugetPackage(string nugetSource, Project? registerProject);
     }
 }

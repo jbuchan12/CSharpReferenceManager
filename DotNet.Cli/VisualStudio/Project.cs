@@ -34,6 +34,9 @@ public class Project : IProject
     public Guid Id { get; set; }
     public string Name { get; }
     public string Directory { get; }
+    public string ReleaseDirectory => $@"{Directory}\bin\Release\";
+    public string ReleaseName => 
+        $"{Path.GetFileNameWithoutExtension(Name)}.{LinkedNugetPackage?.Version.ToString() ?? string.Empty}.nupkg";
     public NugetPackage? LinkedNugetPackage { get; set; }
     public EventHandler<EventArgs>? ProjectDataChanged { get; set; }
 

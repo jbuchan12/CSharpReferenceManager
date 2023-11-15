@@ -62,9 +62,12 @@ public class PackagesCommandLineInterface : DotNetCommandLineInterface, IPackage
         if (package.RegisteredProject is null)
             throw new ArgumentNullException(nameof(package.RegisteredProject));
 
+        package.IncrementPatchVersion();
+
         Project project = package.RegisteredProject;
 
-        Command = $"pack {project.Name} -p:PackageVersion=1.0.2 --configuration release";
+        Command = $"pack {project.Name} -p:PackageVersion={package.Version.ToString()} --configuration release";
+
         return RunDotnetCommand(_project.Directory);
     }
 
