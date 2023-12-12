@@ -3,49 +3,41 @@ using CsSolutionManager.DataLayer.Repositories;
 using DotNet.Cli.VisualStudio;
 using Solution = CsSolutionManager.DataLayer.Entities.Solution;
 
-namespace CsSolutionManager.BusinessLogic.Services
+namespace CsSolutionManager.BusinessLogic.Services;
+
+public class ApplicationHistoryService(
+    IApplicationHistoryRepository applicationHistoryRepository, 
+    ISolutionRepository solutionRepository) : IApplicationHistoryService
 {
-    public class ApplicationHistoryService : IApplicationHistoryService
+    public ApplicationHistory? GetLatestHistory()
+        => applicationHistoryRepository.GetLatest();
+
+    public void UpdateSolution(ISolution solution)
     {
-        private readonly IApplicationHistoryRepository _applicationHistoryRepository;
-        private readonly ISolutionRepository _solutionRepository;
+        Solution existingSolution = solutionRepository.GetById(solution.Id) 
+             ?? new Solution
+             {
+                 Name = solution.Name,
+                 FullPath = solution.FullPath,
+                 Directory = solution.Directory,
+                 Id = solution.Id
+             };
 
-        public ApplicationHistoryService(IApplicationHistoryRepository applicationHistoryRepository, ISolutionRepository solutionRepository)
+        solutionRepository.Add(existingSolution);
+
+        var newHistory = new ApplicationHistory
         {
-            _applicationHistoryRepository = applicationHistoryRepository;
-            _solutionRepository = solutionRepository;
-        }
+            Id = Guid.NewGuid(),
+            Solution = existingSolution,
+            Date = DateTime.Now
+        };
 
-        public ApplicationHistory? GetLatestHistory()
-            => _applicationHistoryRepository.GetLatest();
-
-        public void UpdateSolution(ISolution solution)
-        {
-            Solution? existingSolution = _solutionRepository.GetById(solution.Id) 
-            ?? new Solution
-            {
-                Name = solution.Name,
-                FullPath = solution.FullPath,
-                Directory = solution.Directory,
-                Id = solution.Id
-            };
-
-            _solutionRepository.Add(existingSolution);
-
-            var newHistory = new ApplicationHistory
-            {
-                Id = Guid.NewGuid(),
-                Solution = existingSolution,
-                Date = DateTime.Now
-            };
-
-            _applicationHistoryRepository.Add(newHistory);
-        }
+        applicationHistoryRepository.Add(newHistory);
     }
+}
 
-    public interface IApplicationHistoryService
-    {
-        ApplicationHistory? GetLatestHistory();
-        void UpdateSolution(ISolution solution);
-    }
+public interface IApplicationHistoryService
+{
+    ApplicationHistory? GetLatestHistory();
+    void UpdateSolution(ISolution solution);
 }

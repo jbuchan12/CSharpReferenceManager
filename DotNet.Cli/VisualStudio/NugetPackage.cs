@@ -2,17 +2,10 @@
 
 namespace DotNet.Cli.VisualStudio;
 
-public class NugetPackage
+public class NugetPackage(string name, string version)
 {
-
-    public NugetPackage(string name, string version)
-    {
-        Name = name;
-        Version = (NugetPackageVersion)version;
-    }
-
-    public string Name { get; set; }
-    public NugetPackageVersion Version { get; }
+    public string Name { get; set; } = name;
+    public NugetPackageVersion Version { get; } = (NugetPackageVersion)version;
     public Project? RegisteredProject { get; set; }
 
     public void Publish(IPublishCommandLine publishCommandLine)

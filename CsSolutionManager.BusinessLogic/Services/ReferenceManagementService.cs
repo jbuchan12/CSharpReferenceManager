@@ -8,29 +8,14 @@ using Project = DotNet.Cli.VisualStudio.Project;
 
 namespace CsSolutionManager.BusinessLogic.Services;
 
-public class ReferenceManagementService : IReferenceManagementService
+public class ReferenceManagementService(IOpenFileDialog openFileDialog,
+        IMessageBox messageBox,
+        INugetPackageRepository nugetPackageRepository,
+        IProjectRepository projectRepository,
+        IMapperService mapper)
+    : IReferenceManagementService
 {
     private static string CodeRepositoryFolder => $@"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}\source\repos\";
-
-    private readonly IOpenFileDialog _openFileDialog;
-    private readonly IMessageBox _messageBox;
-    private readonly INugetPackageRepository _nugetPackageRepository;
-    private readonly IProjectRepository _projectRepository;
-    private readonly IMapperService _mapper;
-
-    public ReferenceManagementService(
-        IOpenFileDialog openFileDialog, 
-        IMessageBox messageBox, 
-        INugetPackageRepository nugetPackageRepository, 
-        IProjectRepository projectRepository, 
-        IMapperService mapper)
-    {
-        _openFileDialog = openFileDialog;
-        _messageBox = messageBox;
-        _nugetPackageRepository = nugetPackageRepository;
-        _projectRepository = projectRepository;
-        _mapper = mapper;
-    }
 
     public async Task ChangeToProjectReference(NugetPackage? nugetPackage, Project? project, ISolution? solution)
     {
@@ -55,10 +40,10 @@ public class ReferenceManagementService : IReferenceManagementService
         if (selectedProject is null || referencedProject is null || solution is null)
             return;
 
-        DataLayer.Entities.Project? dbProject = _projectRepository.GetIncludingNugetPackage(referencedProject.Name);
+        DataLayer.Entities.Project? dbProject = projectRepository.GetIncludingNugetPackage(referencedProject.Name);
         if (dbProject?.NugetPackage is not null)
         {
-            referencedProject.LinkedNugetPackage = _mapper.MapTo<NugetPackage>(dbProject.NugetPackage);
+            referencedProject.LinkedNugetPackage = mapper.MapTo<NugetPackage>(dbProject.NugetPackage);
         }
 
         if (referencedProject.LinkedNugetPackage is null)
@@ -71,31 +56,31 @@ public class ReferenceManagementService : IReferenceManagementService
 
     public void RegisterProjectFileWithNugetPackage(NugetPackage package, ISolution solution)
     {
-        _messageBox.Show("Please register a csproj file with this nuget package before continuing");
+        messageBox.Show("Please register a csproj file with this nuget package before continuing");
 
-        if (!_openFileDialog.ShowDialog(
+        if (!openFileDialog.ShowDialog(
                 OpenFileDialogFilter.CsprojFileFilter,
                 CodeRepositoryFolder,
                 "Please select a csproj file.") ?? false)
             return;
 
         var project = new Project(
-            _openFileDialog.FileName,
+            openFileDialog.FileName,
             new ProjectsCommandLineInterface<ISolution>(solution, string.Empty));
 
         package.RegisteredProject = project;
 
-        _ = _nugetPackageRepository.Add(
-            _mapper.MapTo<DataLayer.Entities.NugetPackage>(package));
+        _ = nugetPackageRepository.Add(
+            mapper.MapTo<DataLayer.Entities.NugetPackage>(package));
     }
 
     private Project? CheckForRegisteredProjectWithDb(NugetPackage nugetPackage)
     {
-        DataLayer.Entities.Project? project = _nugetPackageRepository.GetByName(nugetPackage.Name)?.Project;
+        DataLayer.Entities.Project? project = nugetPackageRepository.GetByName(nugetPackage.Name)?.Project;
 
         return project is null 
             ? null : 
-            _mapper.MapTo<Project>(project);
+            mapper.MapTo<Project>(project);
     }
 }
 
